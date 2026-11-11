@@ -28,9 +28,27 @@
 | `meta` | 제목, 부제, 마지막 업데이트 시각(`+09:00`), 이 저장소 주소 |
 | `owners`, `areas` | 담당(나 · PM · 기획 · 팀)과 영역 이름 |
 | `milestones` | 공모전 일정: `id`, `name`, `from`, `to`, `note` |
-| `items` | 일 하나하나: `id`, `title`, `area`, `owner`, `status`(`todo` · `doing` · `waiting` · `done`), `requested`, `started`, `done`, `stage`(일정 `id`), `request`(요청 요약), `note`, `ref`(커밋·PR), `steps`, `check`(다시 확인할 일), `waitingOn` |
-| `events` | 이력. 시간 순서대로 **뒤에 붙여요**: `at`, `type`(`request` · `start` · `done` · `wait` · `note`), `item`, `text` |
+| `keyDates` | 다가오는 일정(미팅·마감): `date`, `time`, `name`, `item` |
+| `items` | 일 하나하나 (아래 표) |
+| `events` | 이력: `at`, `type`(`request` · `start` · `done` · `wait` · `note`), `item`, `text`. 날짜 순서로 넣고, 같은 날은 일어난 순서대로 |
 | `features` | 기획서 기능 대비 현황: `group`, `rows[]`(`name`, `status`(`done` · `partial` · `todo`), `have`, `left`) |
+
+`items` 한 개의 칸:
+
+| 칸 | 내용 |
+| --- | --- |
+| `id`, `title` | `N-000` 번호와 제목. 번호는 바꾸지 않아요 (주소 `#N-044`로 바로 열림) |
+| `status` | `todo` 할 일 · `doing` 진행 중 · `waiting` 결정 필요 · `done` 완료 |
+| `owner`, `area` | 담당, 영역 |
+| `priority`, `rank` | 우선순위 1 먼저 · 2 다음 · 3 나중, 같은 우선순위 안의 순서 |
+| `stage`, `due` | 속한 일정 `id`, 마감일 |
+| `desc` | 무엇을 왜 하는지 |
+| `steps` | 단계 `[{ text, done }]` |
+| `includes` | 끝난 일에 들어간 것 |
+| `accept` | 끝났다고 볼 기준 |
+| `request`, `source` | 요청 요약, 어디서 나온 일인지 (예: 카톡 11/10 PM 제안) |
+| `requested`, `started`, `done` | 올라온 날, 시작한 날, 끝낸 날 |
+| `waitingOn`, `related`, `ref`, `note`, `check` | 기다리는 사람, 관련 번호, 커밋·PR, 메모, 다시 확인할 일 |
 
 날짜는 모두 한국 시간이고, `YYYY-MM-DD` 또는 `YYYY-MM-DDTHH:MM` 형식이에요.
 

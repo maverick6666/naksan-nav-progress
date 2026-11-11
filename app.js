@@ -1,6 +1,8 @@
 // NAKSAN.NAV 작업 현황 — data/tracker.json 하나를 읽어 화면을 그린다.
 "use strict";
 
+const STATUS = { doing: "진행 중", waiting: "결정 필요", todo: "할 일", done: "완료" };
+const PRIORITY = { 1: "먼저", 2: "다음", 3: "나중" };
 const FEATURE = { done: "완료", partial: "일부", todo: "아직" };
 const EVENT = { request: "요청", start: "시작", done: "완료", wait: "결정 필요", note: "메모" };
 const WD = ["일", "월", "화", "수", "목", "금", "토"];
@@ -26,17 +28,93 @@ const longDate = (s) => {
   return `${m}월 ${d}일 (${WD[new Date(utc(s)).getUTCDay()]})`;
 };
 const hm = (at) => (at.length > 10 ? at.slice(11, 16) : "");
+const dday = (today, d) => {
+  const n = daysBetween(today, d);
+  return n < 0 ? "지남" : n === 0 ? "오늘" : n === 1 ? "내일" : `D-${n}`;
+};
 
 let DATA = null;
+let TODAY = "";
 let ownerFilter = "all";
 
 const byId = (id) => DATA.items.find((i) => i.id === id);
 const ownerName = (o) => DATA.owners[o] ?? o;
 const areaName = (a) => DATA.areas[a] ?? a;
-const tags = (it) => `<span class="tg">${esc(ownerName(it.owner))}</span><span class="tg">${esc(areaName(it.area))}</span>`;
+// 요약 줄에는 담당만. 영역은 펼쳤을 때 보인다.
+const tags = (it) => `<span class="tg">${esc(ownerName(it.owner))}</span>`;
+const prio = (it) => (it.priority && it.status !== "done" ? `<span class="pr pr--${it.priority}">${PRIORITY[it.priority] ?? ""}</span>` : "");
+const due = (it) => (it.due && it.status !== "done" ? `<span class="due">${md(it.due)} 마감 · ${dday(TODAY, it.due)}</span>` : "");
+const chev = `<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3"/></svg>`;
+// 우선순위 → 마감이 가까운 순 → 직접 정한 순서(rank) → 번호
+const byPriority = (a, b) =>
+  (a.priority ?? 9) - (b.priority ?? 9) ||
+  (a.due ?? "9999").localeCompare(b.due ?? "9999") ||
+  (a.rank ?? 99) - (b.rank ?? 99) ||
+  a.id.localeCompare(b.id);
+
+/* ───────── 눌러서 펼치는 상세 ───────── */
+function stepsList(steps) {
+  const next = steps.findIndex((s) => !s.done);
+  return `<ol class="steps">${steps
+    .map((s, k) => `<li class="${s.done ? "is-done" : k === next ? "is-next" : ""}"><i></i>${esc(s.text)}</li>`)
+    .join("")}</ol>`;
+}
+
+const block = (title, html) => `<div class="d-block"><h4>${esc(title)}</h4>${html}</div>`;
+
+function detail(it) {
+  const out = [];
+  if (it.desc) out.push(`<p class="d-desc">${esc(it.desc)}</p>`);
+  if (it.request) out.push(`<p class="quote">${esc(it.request)}</p>`);
+  if (it.includes?.length) out.push(block("들어간 것", `<ul class="d-list">${it.includes.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`));
+  if (it.steps?.length) {
+    const n = it.steps.filter((s) => s.done).length;
+    out.push(block(`단계 ${n} / ${it.steps.length}`, stepsList(it.steps)));
+  }
+  if (it.accept) out.push(block("끝났다고 볼 기준", `<p class="d-p">${esc(it.accept)}</p>`));
+  if (it.note) out.push(block("메모", `<p class="d-p">${esc(it.note)}</p>`));
+  if (it.check) out.push(`<p class="d-check">11월 2일 메모에서 옮긴 일이라 이미 끝났을 수 있어요.</p>`);
+
+  const meta = [
+    ["담당", ownerName(it.owner)],
+    ["영역", areaName(it.area)],
+    ["상태", STATUS[it.status] ?? it.status],
+    it.waitingOn && ["기다리는 사람", it.waitingOn],
+    it.requested && ["올라온 날", longDate(it.requested)],
+    it.started && ["시작", longDate(it.started)],
+    it.done && ["끝낸 날", longDate(it.done)],
+    it.due && ["마감", longDate(it.due)],
+    it.source && ["출처", it.source],
+    it.ref && ["참고", it.ref],
+  ].filter(Boolean);
+  const rel = (it.related ?? []).map(byId).filter(Boolean);
+  const relHtml = rel.length
+    ? `<dt>관련</dt><dd>${rel.map((r) => `<a href="#${esc(r.id)}">${esc(r.id)} ${esc(r.title)}</a>`).join("<br>")}</dd>`
+    : "";
+  return `<div class="detail">${out.join("")}<dl class="d-meta">${meta
+    .map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`)
+    .join("")}${relHtml}</dl></div>`;
+}
+
+const preview = (it) => {
+  const text = it.desc ?? it.note ?? (it.includes ? it.includes.join(" · ") : "");
+  return text ? `<p class="row__sub">${esc(text)}</p>` : "";
+};
+
+/** 항목 하나: 요약 줄을 누르면 상세가 펼쳐진다. */
+function item(it, lead) {
+  const steps = it.steps?.length && it.status !== "done" ? `<span class="tg">단계 ${it.steps.filter((s) => s.done).length}/${it.steps.length}</span>` : "";
+  const extra = it.status === "done" && it.includes?.length ? `<span class="tg">${it.includes.length}가지</span>` : "";
+  return `<details class="it" id="${esc(it.id)}"><summary class="row">${lead}<div class="row__main"><p class="row__t"><span class="id">${esc(it.id)}</span> ${esc(
+    it.title,
+  )}</p>${preview(it)}</div><div class="row__tags">${prio(it)}${due(it)}${it.check ? `<span class="tg tg--check">확인 필요</span>` : ""}${steps}${extra}${tags(it)}${
+    it.ref && it.status === "done" ? `<span class="ref">${esc(it.ref)}</span>` : ""
+  }${chev}</div></summary>${detail(it)}</details>`;
+}
 
 /* ───────── 지금 어디까지 ───────── */
-function secNow(today) {
+function secNow() {
+  const today = TODAY;
   const ms = DATA.milestones;
   const start = ms[0].from;
   const end = ms[ms.length - 1].to;
@@ -49,9 +127,11 @@ function secNow(today) {
   if (cur) {
     const isNow = phase(cur) === "now";
     const left = daysBetween(today, cur.to);
-    const dday = isNow ? (left === 0 ? "오늘 마감" : `마감까지 ${left}일`) : `${daysBetween(today, cur.from)}일 뒤 시작`;
+    const d = isNow ? (left === 0 ? "오늘 마감" : `마감까지 ${left}일`) : `${daysBetween(today, cur.from)}일 뒤 시작`;
     const span = cur.from === cur.to ? md(cur.from) : `${md(cur.from)}–${md(cur.to)}`;
-    stage = `<div class="stage"><span>${isNow ? "지금 단계" : "다음 단계"}</span><b>${esc(cur.name)}</b><span class="dday">${dday}</span><span>${span}${cur.note ? ` · ${esc(cur.note)}` : ""}</span></div>`;
+    stage = `<div class="stage"><span>${isNow ? "지금 단계" : "다음 단계"}</span><b>${esc(cur.name)}</b><span class="dday">${d}</span><span>${span}${
+      cur.note ? ` · ${esc(cur.note)}` : ""
+    }</span></div>`;
   }
 
   const segs = ms
@@ -59,6 +139,10 @@ function secNow(today) {
       const w = Math.max(((daysBetween(m.from, m.to) + 1) / total) * 100, 0.8);
       return `<i class="is-${phase(m)}" style="left:${at(m.from)}%;width:${w}%" title="${esc(m.name)}"></i>`;
     })
+    .join("");
+  const keys = (DATA.keyDates ?? [])
+    .filter((k) => k.date >= start && k.date <= end)
+    .map((k) => `<b class="ms__key" style="left:${((daysBetween(start, k.date) + 0.5) / total) * 100}%" title="${esc(md(k.date))} ${esc(k.name)}"></b>`)
     .join("");
   const mark =
     today >= start && today <= end
@@ -68,23 +152,45 @@ function secNow(today) {
     .map((m) => `<li class="is-${phase(m)}"><b>${esc(m.name)}</b>${m.from === m.to ? md(m.from) : `${md(m.from)}–${md(m.to)}`}</li>`)
     .join("");
 
+  const upcoming = (DATA.keyDates ?? []).filter((k) => k.date >= today).slice(0, 4);
+  const dates = upcoming.length
+    ? `<div class="dates"><h3>다가오는 일정</h3><ul>${upcoming
+        .map((k) => {
+          const name = k.item ? `<a href="#${esc(k.item)}">${esc(k.name)}</a>` : esc(k.name);
+          return `<li><span class="dates__d">${dday(today, k.date)}</span><span class="dates__when">${longDate(k.date)}${k.time ? ` ${esc(k.time)}` : ""}</span><span class="dates__name">${name}</span></li>`;
+        })
+        .join("")}</ul></div>`
+    : "";
+
   const c = { done: 0, doing: 0, waiting: 0, todo: 0 };
   for (const it of DATA.items) if (it.status in c) c[it.status]++;
   const n = DATA.items.length;
   const pct = (k) => (c[k] / n) * 100;
 
-  const doing = DATA.items.filter((i) => i.status === "doing");
-  const waiting = DATA.items.filter((i) => i.status === "waiting");
-  const waitRow = (it) =>
-    `<div class="wait"><p class="wait__t"><span class="id">${esc(it.id)}</span>${esc(it.title)}<span class="tg">${esc(it.waitingOn ?? ownerName(it.owner))}</span></p>${
-      it.note ? `<p class="note">${esc(it.note)}</p>` : ""
-    }</div>`;
+  const first = DATA.items.filter((i) => i.status !== "done" && i.priority === 1).sort(byPriority);
+  const firstHtml = first.length
+    ? `<div class="next"><h3>먼저 할 일 <span>${first.length}</span></h3><ol>${first
+        .map(
+          (it) =>
+            `<li><a href="#${esc(it.id)}"><span class="id">${esc(it.id)}</span> ${esc(it.title)}</a><span class="next__tags">${due(it)}${
+              it.status === "todo" ? "" : `<span class="st st--${esc(it.status)}">${esc(STATUS[it.status])}</span>`
+            }${tags(it)}</span></li>`,
+        )
+        .join("")}</ol></div>`
+    : "";
+
+  const doing = DATA.items.filter((i) => i.status === "doing").sort(byPriority);
+  const waiting = DATA.items.filter((i) => i.status === "waiting").sort(byPriority);
 
   return `<section class="sec" id="now">
     <div class="sec__head"><h2>지금 어디까지 왔나</h2><span>오늘 ${longDate(today)}</span></div>
     ${stage}
-    <div class="ms" aria-hidden="true">${segs}${mark}</div>
+    <div class="ms" aria-hidden="true">${segs}${keys}${mark}</div>
     <ol class="ms-list">${list}</ol>
+    <div class="overview">
+      ${firstHtml}
+      ${dates}
+    </div>
     <div class="counts">
       <div><small>진행 중</small><p class="num">${c.doing}</p></div>
       <div><small>결정 필요</small><p class="num">${c.waiting}</p></div>
@@ -98,35 +204,17 @@ function secNow(today) {
       <span style="--c:var(--done)">완료 ${c.done}</span><span style="--c:var(--accent)">진행 중 ${c.doing}</span><span style="--c:#d9a250">결정 필요 ${c.waiting}</span><span style="--c:#c3cad4">할 일 ${c.todo}</span>
     </div>
     <div class="duo">
-      <div class="panel"><h3>지금 하는 일 <span>${doing.length}</span></h3>${doing.length ? doing.map(workCard).join("") : `<p class="empty">지금 진행 중인 일이 없어요.</p>`}</div>
-      <div class="panel"><h3>결정이 필요한 것 <span>${waiting.length}</span></h3>${waiting.length ? waiting.map(waitRow).join("") : `<p class="empty">기다리는 결정이 없어요.</p>`}</div>
+      <div class="panel"><h3>지금 하는 일 <span>${doing.length}</span></h3>${
+        doing.length ? doing.map((it) => item(it, `<i class="dot dot--doing"></i>`)).join("") : `<p class="empty">지금 진행 중인 일이 없어요.</p>`
+      }</div>
+      <div class="panel"><h3>결정이 필요한 것 <span>${waiting.length}</span></h3>${
+        waiting.length ? waiting.map((it) => item(it, `<i class="dot dot--waiting"></i>`)).join("") : `<p class="empty">기다리는 결정이 없어요.</p>`
+      }</div>
     </div>
   </section>`;
 }
 
-function workCard(it) {
-  const steps = it.steps ?? [];
-  const doneN = steps.filter((s) => s.done).length;
-  const next = steps.findIndex((s) => !s.done);
-  const list = steps.map((s, k) => `<li class="${s.done ? "is-done" : k === next ? "is-next" : ""}"><i></i>${esc(s.text)}</li>`).join("");
-  return `<div class="work">
-    <p class="work__t"><span class="id">${esc(it.id)}</span>${esc(it.title)}</p>
-    ${it.request ? `<p class="quote">${esc(it.request)}</p>` : ""}
-    ${it.started ? `<p class="note">${longDate(it.started)} 시작</p>` : ""}
-    ${
-      steps.length
-        ? `<ol class="steps">${list}</ol><div class="steps__bar"><div><i style="width:${(doneN / steps.length) * 100}%"></i></div><span class="num">${doneN} / ${steps.length}</span></div>`
-        : ""
-    }
-  </div>`;
-}
-
 /* ───────── 할 일 ───────── */
-const todoRow = (it) =>
-  `<div class="row"><i></i><div><p class="row__t"><span class="id">${esc(it.id)}</span> ${esc(it.title)}</p>${
-    it.note ? `<p class="note">${esc(it.note)}</p>` : ""
-  }</div><div class="row__tags">${it.check ? `<span class="tg tg--check">확인 필요</span>` : ""}${tags(it)}</div></div>`;
-
 function secTodo() {
   const todo = DATA.items.filter((i) => i.status === "todo");
   const count = (o) => (o === "all" ? todo.length : todo.filter((i) => i.owner === o).length);
@@ -139,21 +227,19 @@ function secTodo() {
     .join("");
   const shown = todo.filter((i) => ownerFilter === "all" || i.owner === ownerFilter);
   // 1단계 → 시기 미정 → 이후 단계 순서
-  const [first, ...rest] = DATA.milestones;
-  const groups = [first, null, ...rest];
-  const html = groups
+  const [firstStage, ...rest] = DATA.milestones;
+  const html = [firstStage, null, ...rest]
     .map((m) => {
-      const list = shown.filter((i) => (i.stage ?? null) === (m ? m.id : null));
+      const list = shown.filter((i) => (i.stage ?? null) === (m ? m.id : null)).sort(byPriority);
       if (!list.length) return "";
       const head = m
         ? `${esc(m.name)}<span>${md(m.from)}–${md(m.to)} · ${list.length}개</span>`
-        : `시기 미정<span>틈틈이 할 일 · ${list.length}개</span>`;
-      return `<div class="group"><h3>${head}</h3>${list.map(todoRow).join("")}</div>`;
+        : `시기 미정<span>단계와 상관없이 할 일 · ${list.length}개</span>`;
+      return `<div class="group"><h3>${head}</h3>${list.map((it) => item(it, `<i class="dot"></i>`)).join("")}</div>`;
     })
     .join("");
   return `<section class="sec" id="todo">
-    <div class="sec__head"><h2>할 일</h2><span>${todo.length}개</span></div>
-    <p class="hint">‘확인 필요’는 11월 2일 메모에서 옮긴 일이라 이미 끝났을 수 있어요.</p>
+    <div class="sec__head"><h2>할 일</h2><span>${todo.length}개 · 줄을 누르면 자세히 보여요</span></div>
     <div class="chips" role="group" aria-label="담당 고르기">${chips}</div>
     ${html || `<p class="note">이 담당의 할 일이 없어요.</p>`}
   </section>`;
@@ -171,25 +257,30 @@ function bindChips() {
 
 /* ───────── 한 일 ───────── */
 function secDone() {
-  const done = DATA.items
-    .filter((i) => i.status === "done")
-    .sort((a, b) => (b.done ?? "").localeCompare(a.done ?? "") || b.id.localeCompare(a.id));
-  const row = (it) =>
-    `<div class="row"><time class="num" datetime="${esc(it.done)}">${md(it.done)}</time><div><p class="row__t">${esc(it.title)}</p>${
-      it.request ? `<p class="quote">${esc(it.request)}</p>` : ""
-    }${it.note ? `<p class="note">${esc(it.note)}</p>` : ""}</div><div class="row__tags">${tags(it)}${it.ref ? `<span class="ref">${esc(it.ref)}</span>` : ""}</div></div>`;
+  const done = DATA.items.filter((i) => i.status === "done").sort((a, b) => (b.done ?? "").localeCompare(a.done ?? "") || b.id.localeCompare(a.id));
+  const days = [];
+  for (const it of done) {
+    let g = days.find((x) => x.d === it.done);
+    if (!g) days.push((g = { d: it.done, list: [] }));
+    g.list.push(it);
+  }
   return `<section class="sec" id="done">
-    <div class="sec__head"><h2>한 일</h2><span>${done.length}개</span></div>
-    <div class="done-list">${done.map(row).join("")}</div>
+    <div class="sec__head"><h2>한 일</h2><span>${done.length}개 · 줄을 누르면 들어간 기능이 보여요</span></div>
+    ${days
+      .map(
+        (g) =>
+          `<div class="group"><h3>${longDate(g.d)}<span>${g.list.length}개</span></h3>${g.list.map((it) => item(it, `<i class="dot dot--done"></i>`)).join("")}</div>`,
+      )
+      .join("")}
   </section>`;
 }
 
 /* ───────── 요청 이력 ───────── */
-function burnup(today) {
+function burnup() {
   const its = DATA.items.filter((i) => i.requested);
   const first = its.map((i) => i.requested).sort()[0];
   const lastDone = its.map((i) => i.done).filter(Boolean).sort().pop() ?? first;
-  const end = today > lastDone ? today : lastDone;
+  const end = TODAY > lastDone ? TODAY : lastDone;
   const n = daysBetween(first, end) + 1;
   const req = [];
   const fin = [];
@@ -218,7 +309,7 @@ function burnup(today) {
     .join("");
   const lr = req[n - 1];
   const lf = fin[n - 1];
-  let yr = y(lr) + 4;
+  const yr = y(lr) + 4;
   let yf = y(lf) + 4;
   if (Math.abs(yr - yf) < 16) yf = yr + 16;
   return `<div class="chart">
@@ -235,9 +326,14 @@ function burnup(today) {
   </div>`;
 }
 
-function secLog(today) {
+function secLog() {
+  // 날짜 순서, 같은 날은 적힌 순서. 화면에는 최근 것이 위로.
+  const evs = DATA.events
+    .map((e, i) => ({ ...e, i }))
+    .sort((a, b) => a.at.slice(0, 10).localeCompare(b.at.slice(0, 10)) || a.i - b.i)
+    .reverse();
   const days = [];
-  for (const e of [...DATA.events].reverse()) {
+  for (const e of evs) {
     const d = e.at.slice(0, 10);
     let g = days.find((x) => x.d === d);
     if (!g) days.push((g = { d, list: [] }));
@@ -245,14 +341,13 @@ function secLog(today) {
   }
   const evRow = (e) => {
     const it = e.item ? byId(e.item) : null;
-    const main = it ? `<p><span class="id">${esc(it.id)}</span>${esc(it.title)}</p>` : `<p>${esc(e.text)}</p>`;
-    const sub =
-      it && e.text ? `<p class="note">${esc(e.text)}</p>` : it && e.type === "request" && it.request ? `<p class="quote">${esc(it.request)}</p>` : "";
+    const main = it ? `<p><a href="#${esc(it.id)}"><span class="id">${esc(it.id)}</span>${esc(it.title)}</a></p>` : `<p>${esc(e.text)}</p>`;
+    const sub = it && e.text ? `<p class="note">${esc(e.text)}</p>` : it && e.type === "request" && it.request ? `<p class="quote">${esc(it.request)}</p>` : "";
     return `<div class="ev"><time class="num">${hm(e.at)}</time><span class="st st--${esc(e.type)}">${esc(EVENT[e.type] ?? e.type)}</span><div>${main}${sub}</div></div>`;
   };
   return `<section class="sec" id="log">
     <div class="sec__head"><h2>요청 이력</h2><span>${DATA.events.length}건</span></div>
-    ${burnup(today)}
+    ${burnup()}
     ${days.map((g) => `<div class="day"><h3>${longDate(g.d)}</h3>${g.list.map(evRow).join("")}</div>`).join("")}
   </section>`;
 }
@@ -275,9 +370,27 @@ function secFeatures() {
         .join("")}</tbody>
     </table></div>`;
   return `<section class="sec" id="features">
-    <div class="sec__head"><h2>기능 현황</h2><span>기획서 기능 ${all.length}개 · 완료 ${c.done} · 일부 ${c.partial} · 아직 ${c.todo}</span></div>
+    <div class="sec__head"><h2>기능 현황</h2><span>기능 ${all.length}개 · 완료 ${c.done} · 일부 ${c.partial} · 아직 ${c.todo}</span></div>
     ${DATA.features.map(table).join("")}
   </section>`;
+}
+
+/* ───────── 주소의 #N-000 으로 항목 열기 ───────── */
+function openFromHash() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (!/^N-\d{3}$/.test(id)) return;
+  let el = document.getElementById(id);
+  if (!el && ownerFilter !== "all") {
+    // 담당 거르기 때문에 숨어 있으면 전체로 되돌린다
+    ownerFilter = "all";
+    document.getElementById("todo").outerHTML = secTodo();
+    bindChips();
+    el = document.getElementById(id);
+  }
+  if (el instanceof HTMLDetailsElement) {
+    el.open = true;
+    el.scrollIntoView({ block: "start" });
+  }
 }
 
 /* ───────── 시작 ───────── */
@@ -298,9 +411,11 @@ async function main() {
   const log = /^https:\/\/github\.com\//.test(meta.repo ?? "") ? ` · <a href="${esc(meta.repo)}/commits/main">변경 기록 보기</a>` : "";
   document.getElementById("updated").innerHTML = `마지막 업데이트 ${esc(longDate(meta.updated))} ${esc(hm(meta.updated))}${log}`;
 
-  const today = todayKST();
-  app.innerHTML = secNow(today) + secTodo() + secDone() + secLog(today) + secFeatures();
+  TODAY = todayKST();
+  app.innerHTML = secNow() + secTodo() + secDone() + secLog() + secFeatures();
   bindChips();
+  window.addEventListener("hashchange", openFromHash);
+  openFromHash();
 }
 
 main();

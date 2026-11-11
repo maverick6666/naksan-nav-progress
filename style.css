@@ -433,23 +433,15 @@ code {
   color: var(--ink-3);
 }
 
-.work + .work {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line-2);
+.panel .it:last-child {
+  border-bottom: 0;
 }
 
-.work__t {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px 8px;
-  font-size: 15px;
-  font-weight: 600;
+.panel .detail {
+  padding-left: 0;
 }
 
 .steps {
-  margin-top: 12px;
   display: grid;
   gap: 6px;
 }
@@ -500,42 +492,255 @@ code {
   border-color: var(--accent);
 }
 
-.steps__bar {
+/* ── 지금: 먼저 할 일 · 다가오는 일정 ── */
+.overview {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.overview h3 {
   display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.overview h3 span {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.next ol {
+  counter-reset: next;
+}
+
+.next li {
+  counter-increment: next;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  padding: 9px 0 9px 26px;
+  border-bottom: 1px solid var(--line-2);
+  position: relative;
+}
+
+.next li::before {
+  content: counter(next);
+  position: absolute;
+  left: 2px;
+  top: 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.next li > a {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.next__tags {
+  display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.dates li {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 2px 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line-2);
+}
+
+.dates__d {
+  grid-row: span 2;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.dates__when {
   font-size: 12px;
   color: var(--ink-3);
 }
 
-.steps__bar div {
-  flex: 1;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--line-2);
-  overflow: hidden;
-}
-
-.steps__bar div i {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-}
-
-.wait + .wait {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line-2);
-}
-
-.wait__t {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px 8px;
-  font-size: 14px;
+.dates__name,
+.dates__name a {
+  font-size: 13.5px;
   font-weight: 600;
+  color: var(--ink);
+}
+
+.ms__key {
+  position: absolute;
+  top: -5px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 1px;
+  background: var(--wait);
+  transform: rotate(45deg);
+}
+
+/* ── 항목: 누르면 펼쳐진다 ── */
+.it {
+  border-bottom: 1px solid var(--line-2);
+}
+
+.it > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.it > summary::-webkit-details-marker {
+  display: none;
+}
+
+.it > summary:hover .row__t {
+  color: var(--accent);
+}
+
+.it > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.it[open] > summary .row__sub {
+  display: none;
+}
+
+.it[open] > summary .row__t {
+  font-weight: 700;
+}
+
+.chev {
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  fill: none;
+  stroke: var(--ink-3);
+  stroke-width: 1.6;
+  transition: transform 0.15s;
+}
+
+.it[open] > summary .chev {
+  transform: rotate(180deg);
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  border-radius: 50%;
+  border: 1.5px solid #c3cad4;
+}
+
+.dot--doing { border-color: var(--accent); background: var(--accent-weak); }
+.dot--waiting { border-color: #d9a250; background: var(--wait-weak); }
+.dot--done { border-color: var(--done); background: var(--done); }
+
+.pr {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pr--1 { background: var(--ink); color: #fff; }
+.pr--2 { border: 1px solid var(--ink-3); color: var(--ink-2); }
+.pr--3 { color: var(--ink-3); border: 1px dashed #c3cad4; }
+
+.due {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--wait);
+  white-space: nowrap;
+}
+
+.detail {
+  display: grid;
+  gap: 14px;
+  padding: 2px 0 18px 28px;
+}
+
+.d-desc {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.d-block h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+.d-p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.d-list li {
+  position: relative;
+  padding-left: 13px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+
+.d-list li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.72em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink-3);
+}
+
+.d-check {
+  font-size: 12.5px;
+  color: var(--wait);
+}
+
+.d-meta {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 5px 12px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 6px;
+  background: var(--bg-2);
+  font-size: 12.5px;
+}
+
+.d-meta dt {
+  color: var(--ink-3);
+}
+
+.d-meta dd {
+  margin: 0;
+  color: var(--ink-2);
 }
 
 /* ── 할 일 ── */
@@ -600,15 +805,10 @@ code {
   gap: 12px;
   align-items: start;
   padding: 11px 0;
-  border-bottom: 1px solid var(--line-2);
 }
 
-.row > i {
-  width: 14px;
-  height: 14px;
-  margin-top: 3px;
-  border-radius: 50%;
-  border: 1.5px solid #c3cad4;
+.row__main {
+  min-width: 0;
 }
 
 .row__t {
@@ -616,22 +816,33 @@ code {
   font-weight: 500;
 }
 
+.row__sub {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .row__tags {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   justify-content: flex-end;
   gap: 4px;
-}
-
-/* ── 한 일 ── */
-.done-list .row {
-  grid-template-columns: 64px minmax(0, 1fr) auto;
-}
-
-.done-list .row > time {
-  font-size: 13px;
-  color: var(--ink-3);
   padding-top: 1px;
+}
+
+/* 좁은 패널 안에서는 태그를 제목 아래로 */
+.panel .row {
+  grid-template-columns: 16px minmax(0, 1fr);
+}
+
+.panel .row__tags {
+  grid-column: 2;
+  justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .ref {
@@ -809,10 +1020,23 @@ code {
   .row__tags {
     grid-column: 2;
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
-  .done-list .row {
-    grid-template-columns: 48px minmax(0, 1fr);
+  .detail {
+    padding-left: 0;
+  }
+
+  .overview {
+    grid-template-columns: 1fr;
+  }
+
+  .next__tags {
+    margin-left: 0;
+  }
+
+  .d-meta {
+    grid-template-columns: 72px minmax(0, 1fr);
   }
 
   .ev {
