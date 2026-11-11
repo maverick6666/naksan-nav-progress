@@ -2,7 +2,7 @@
   "meta": {
     "title": "NAKSAN.NAV 작업 현황",
     "subtitle": "한성대 진로로드맵 e-Advisor 공모전 · 백엔드·DB·데이터 담당의 작업 기록",
-    "updated": "2026-11-11T20:25:00+09:00",
+    "updated": "2026-11-11T20:32:00+09:00",
     "repo": "https://github.com/maverick6666/naksan-nav-progress"
   },
   "owners": {
@@ -94,16 +94,17 @@
       "note": "팀 저장소는 비공개라 Pages가 꺼져 있음 → 내 계정의 공개 저장소로는 가능"
     },
     {
-      "id": "N-013", "title": "작업 현황 웹 만들기 (이 페이지)", "area": "deploy", "owner": "me", "status": "doing",
-      "requested": "2026-11-11", "started": "2026-11-11",
+      "id": "N-013", "title": "작업 현황 웹 만들기 (이 페이지)", "area": "deploy", "owner": "me", "status": "done",
+      "requested": "2026-11-11", "started": "2026-11-11", "done": "2026-11-11",
       "request": "공개 저장소에 한 일·할 일·진행상황을 시각화하는 웹. 요청할 때마다 커밋해서 이력이 보이게",
+      "note": "이제부터 요청이 생기거나 일이 끝날 때마다 이 페이지를 고쳐서 커밋해요",
       "steps": [
         { "text": "지금까지 작업 이력 모으기", "done": true },
         { "text": "화면과 데이터 파일 만들기", "done": true },
         { "text": "내 PC에서 화면 확인", "done": true },
-        { "text": "공개 저장소 만들고 Pages 켜기", "done": false },
-        { "text": "실제 주소에서 열리는지 확인", "done": false },
-        { "text": "요청마다 기록하는 규칙 저장", "done": false }
+        { "text": "공개 저장소 만들고 Pages 켜기", "done": true },
+        { "text": "실제 주소에서 열리는지 확인", "done": true },
+        { "text": "요청마다 기록하는 규칙 저장", "done": true }
       ]
     },
     {
@@ -176,7 +177,9 @@
     { "at": "2026-11-11", "type": "wait", "item": "N-015" },
     { "at": "2026-11-11", "type": "wait", "item": "N-016" },
     { "at": "2026-11-11T20:15", "type": "request", "item": "N-013" },
-    { "at": "2026-11-11T20:15", "type": "start", "item": "N-013" }
+    { "at": "2026-11-11T20:15", "type": "start", "item": "N-013" },
+    { "at": "2026-11-11T20:26", "type": "note", "item": "N-013", "text": "공개 저장소를 만들고 GitHub Pages를 켬" },
+    { "at": "2026-11-11T20:32", "type": "done", "item": "N-013", "text": "실제 주소에서 확인, 요청마다 기록하는 규칙 저장" }
   ],
   "features": [
     {
