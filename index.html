@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NAKSAN.NAV 작업 현황</title>
+  <meta name="description" content="NAKSAN.NAV(한성대 진로로드맵 e-Advisor) 작업 현황 — 지금 하는 일, 할 일, 한 일, 요청 이력" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <p class="eyebrow">작업 현황</p>
+      <h1 id="title">NAKSAN.NAV</h1>
+      <p class="sub" id="subtitle"></p>
+      <p class="updated" id="updated"></p>
+    </div>
+  </header>
+
+  <nav class="nav" aria-label="섹션">
+    <div class="wrap">
+      <a href="#now">지금</a>
+      <a href="#todo">할 일</a>
+      <a href="#done">한 일</a>
+      <a href="#log">요청 이력</a>
+      <a href="#features">기능 현황</a>
+    </div>
+  </nav>
+
+  <main id="app" class="wrap">
+    <p class="loading">불러오는 중…</p>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <p>이 페이지는 <code>data/tracker.json</code> 한 파일로 그려져요. 새 요청이 생기거나 일이 끝날 때마다 이 파일을 고쳐서 커밋해요.</p>
+      <p>팀원은 이름 대신 역할(PM · 기획)로 적었어요.</p>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

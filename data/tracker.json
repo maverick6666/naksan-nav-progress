@@ -1,0 +1,213 @@
+{
+  "meta": {
+    "title": "NAKSAN.NAV 작업 현황",
+    "subtitle": "한성대 진로로드맵 e-Advisor 공모전 · 백엔드·DB·데이터 담당의 작업 기록",
+    "updated": "2026-11-11T20:25:00+09:00",
+    "repo": "https://github.com/maverick6666/naksan-nav-progress"
+  },
+  "owners": {
+    "me": "나",
+    "pm": "PM",
+    "plan": "기획",
+    "team": "팀"
+  },
+  "areas": {
+    "web": "웹 화면",
+    "design": "디자인",
+    "data": "데이터",
+    "backend": "백엔드",
+    "ai": "AI",
+    "deploy": "배포",
+    "docs": "기획·문서",
+    "research": "리서치"
+  },
+  "milestones": [
+    { "id": "m1", "name": "참여 신청 · 기획서 제출", "from": "2026-11-01", "to": "2026-11-20", "note": "11/20(금) 23:59 마감" },
+    { "id": "m2", "name": "참여 팀 OT", "from": "2026-11-23", "to": "2026-11-25" },
+    { "id": "m3", "name": "S1 기초", "from": "2026-11-26", "to": "2026-12-07", "note": "DB 스키마 · 데이터 구축 · SCAN · CHECK" },
+    { "id": "m4", "name": "S2 핵심 기능", "from": "2026-12-08", "to": "2026-12-21", "note": "MATCH · ROUTE · ASK · 모바일 · 푸시" },
+    { "id": "m5", "name": "S3 마무리", "from": "2026-12-22", "to": "2027-01-04", "note": "OCR · UI 완성 · 사용자 테스트 · 결과보고서" },
+    { "id": "m6", "name": "시연 리허설", "from": "2027-01-05", "to": "2027-01-10" },
+    { "id": "m7", "name": "경진대회 시연", "from": "2027-01-11", "to": "2027-01-11" }
+  ],
+  "items": [
+    {
+      "id": "N-001", "title": "프로젝트 뼈대와 웹 데모 1차", "area": "web", "owner": "me", "status": "done",
+      "requested": "2026-11-02", "done": "2026-11-02", "ref": "618730c",
+      "note": "로그인 → 학과·트랙 → 관심사 → 로딩 → 학기별 로드맵, 졸업요건 패널, 수업계획서, 지니 애니메이션, 상상부기"
+    },
+    {
+      "id": "N-002", "title": "팀 자료와 폴더 구조 올리기", "area": "docs", "owner": "me", "status": "done",
+      "requested": "2026-11-02", "done": "2026-11-02", "ref": "aa51473"
+    },
+    {
+      "id": "N-003", "title": "웹 데모 v2 — 실제 교육과정·졸업요건·휴학/졸업·취업 분석", "area": "web", "owner": "pm", "status": "done",
+      "requested": "2026-11-04", "done": "2026-11-04", "ref": "47c833c"
+    },
+    {
+      "id": "N-004", "title": "GitHub Pages용 데모 빌드", "area": "deploy", "owner": "pm", "status": "done",
+      "requested": "2026-11-04", "done": "2026-11-04", "ref": "6b611e4",
+      "note": "팀 저장소가 비공개로 바뀌면서 지금은 주소가 열리지 않아요 (N-016)"
+    },
+    {
+      "id": "N-005", "title": "폰·태블릿·노트북 화면 대응과 앱 설치(PWA)", "area": "web", "owner": "pm", "status": "done",
+      "requested": "2026-11-06", "done": "2026-11-06", "ref": "cc2a6c1"
+    },
+    {
+      "id": "N-006", "title": "실제 개설 강좌·수업계획서로 데모 데이터 교체", "area": "data", "owner": "me", "status": "done",
+      "requested": "2026-11-07", "done": "2026-11-07", "ref": "88c5cc4",
+      "request": "학교 종합정보시스템 데이터로 실제처럼 데모를 만들자",
+      "note": "1·2학기 개설 강좌, 분반·교수·시간, 수업계획서. 학교 허락을 받아 모았고 개인 연락처는 저장하지 않아요"
+    },
+    {
+      "id": "N-007", "title": "분반(교수·시간)을 골라 이번 학기 시간표에 넣기", "area": "web", "owner": "me", "status": "done",
+      "requested": "2026-11-07", "done": "2026-11-07", "ref": "75c144d",
+      "request": "교수가 많으면 펼쳐서 고르고, 고르면 그 학기 시간표를 볼 수 있게"
+    },
+    {
+      "id": "N-008", "title": "과목을 담으면 시간표에 '쏙' 들어가기", "area": "web", "owner": "me", "status": "done",
+      "requested": "2026-11-07", "done": "2026-11-07", "ref": "82850f9",
+      "request": "이번 학기 시간표 보기가 불편함, 강의를 선택하면 시간표에 쏙쏙",
+      "note": "안 겹치는 분반 자동 선택, 담은 자리에서 시간표로 날아가는 움직임, 겹침 표시"
+    },
+    {
+      "id": "N-009", "title": "UI 미니멀 시안 A (AI 티 빼기)", "area": "design", "owner": "me", "status": "done",
+      "requested": "2026-11-07", "done": "2026-11-07",
+      "request": "UI가 너무 맥시멀하고 AI스러움, 미니멀하게 바꿀 방법을 이미지로 컨펌받기",
+      "note": "지금 화면과 비교 보드, 메인·로그인·관심사·로딩·내 페이지 시안"
+    },
+    {
+      "id": "N-010", "title": "시안 B·C·D와 네 시안 비교 보드", "area": "design", "owner": "me", "status": "done",
+      "requested": "2026-11-07", "done": "2026-11-07",
+      "request": "시안만 더 만들어줘",
+      "note": "B 시간표 중심 · C 학사 문서형 · D 친근한 미니멀"
+    },
+    {
+      "id": "N-011", "title": "시안 이미지를 한 폴더로 정리", "area": "design", "owner": "me", "status": "done",
+      "requested": "2026-11-11", "done": "2026-11-11",
+      "request": "시안 이미지 파일 어딨어? 친구들한테 보여주게"
+    },
+    {
+      "id": "N-012", "title": "github.io로 공개할 수 있는지 확인", "area": "deploy", "owner": "me", "status": "done",
+      "requested": "2026-11-11", "done": "2026-11-11",
+      "request": "깃허브 io로 서빙할 수 있어?",
+      "note": "팀 저장소는 비공개라 Pages가 꺼져 있음 → 내 계정의 공개 저장소로는 가능"
+    },
+    {
+      "id": "N-013", "title": "작업 현황 웹 만들기 (이 페이지)", "area": "deploy", "owner": "me", "status": "doing",
+      "requested": "2026-11-11", "started": "2026-11-11",
+      "request": "공개 저장소에 한 일·할 일·진행상황을 시각화하는 웹. 요청할 때마다 커밋해서 이력이 보이게",
+      "steps": [
+        { "text": "지금까지 작업 이력 모으기", "done": true },
+        { "text": "화면과 데이터 파일 만들기", "done": true },
+        { "text": "내 PC에서 화면 확인", "done": true },
+        { "text": "공개 저장소 만들고 Pages 켜기", "done": false },
+        { "text": "실제 주소에서 열리는지 확인", "done": false },
+        { "text": "요청마다 기록하는 규칙 저장", "done": false }
+      ]
+    },
+    {
+      "id": "N-014", "title": "메인 화면 시안 고르기 (A~D 또는 섞기)", "area": "design", "owner": "me", "status": "waiting",
+      "requested": "2026-11-07", "waitingOn": "나",
+      "note": "추천은 B안(시간표 중심)에 A안의 노선도를 얹는 조합"
+    },
+    {
+      "id": "N-015", "title": "시안 공개 페이지 — 교수 이름을 가릴지 정하기", "area": "design", "owner": "me", "status": "waiting",
+      "requested": "2026-11-11", "waitingOn": "나",
+      "note": "시안 이미지에 실제 교수 이름·시간표가 들어 있어서 공개 전에 결정 필요"
+    },
+    {
+      "id": "N-016", "title": "팀 데모 주소 다시 열기", "area": "deploy", "owner": "pm", "status": "waiting",
+      "requested": "2026-11-11", "waitingOn": "PM",
+      "note": "팀 저장소가 비공개로 바뀌어 Pages가 꺼짐. 저장소를 공개로 돌리거나, 데모만 따로 공개 저장소에 올리거나, 유료 플랜이 필요해요"
+    },
+    {
+      "id": "N-017", "title": "안드로이드 APK 자동 빌드 PR 머지", "area": "deploy", "owner": "pm", "status": "waiting",
+      "requested": "2026-11-07", "waitingOn": "PM", "ref": "PR #8",
+      "note": "바뀐 파일이 겹치지 않아 바로 머지할 수 있는 상태"
+    },
+    { "id": "N-018", "title": "기획서 수정 2", "area": "docs", "owner": "me", "status": "todo", "stage": "m1", "requested": "2026-11-02", "check": true },
+    { "id": "N-019", "title": "기획서 수정 3", "area": "docs", "owner": "plan", "status": "todo", "stage": "m1", "requested": "2026-11-02", "check": true },
+    { "id": "N-020", "title": "공모전 참여 신청서 완성 (지도교수 칸·참여 기간)", "area": "docs", "owner": "pm", "status": "todo", "stage": "m1", "requested": "2026-11-02", "check": true },
+    { "id": "N-021", "title": "기획서에 새 기능 넣기", "area": "docs", "owner": "team", "status": "todo", "stage": "m1", "requested": "2026-11-02", "check": true, "note": "꿀팁 게시판, 비교과 상세·후기, 지난 학기 다시 고르기, 비교과 포인트 이월, 학기 최소 학점" },
+    { "id": "N-022", "title": "최종 기획서 PDF 제출", "area": "docs", "owner": "team", "status": "todo", "stage": "m1", "requested": "2026-11-02", "note": "11/20(금) 23:59까지" },
+    { "id": "N-023", "title": "1차 문제검증 설문 배포 (목표 100명 이상)", "area": "research", "owner": "plan", "status": "todo", "stage": "m1", "requested": "2026-11-02", "check": true },
+    { "id": "N-024", "title": "학과별 졸업요건 조사표 채우기", "area": "research", "owner": "plan", "status": "todo", "stage": "m1", "requested": "2026-11-02", "check": true },
+    { "id": "N-025", "title": "선행 프로젝트 자료 넣기", "area": "docs", "owner": "team", "status": "todo", "stage": "m1", "requested": "2026-11-02", "check": true, "note": "PPT·발표영상은 용량이 커서 드라이브 링크로" },
+    { "id": "N-026", "title": "고른 시안을 실제 앱에 적용", "area": "design", "owner": "me", "status": "todo", "requested": "2026-11-07", "note": "N-014 결정 후. 공통 규칙 → 메인 → 나머지 화면 순서로 나눠서" },
+    { "id": "N-027", "title": "'크게 보기' 시간표 창을 새 시간표 모양으로", "area": "web", "owner": "me", "status": "todo", "requested": "2026-11-07" },
+    { "id": "N-028", "title": "꿀팁 게시판·학기 최소 6학점 옮겨오기", "area": "web", "owner": "me", "status": "todo", "requested": "2026-11-02", "note": "11/2에 만들어 두고 아직 본 코드에 안 들어간 작업" },
+    { "id": "N-029", "title": "시간표 데이터를 앱 번들 밖으로 빼기", "area": "web", "owner": "me", "status": "todo", "requested": "2026-11-07", "note": "지금 앱 파일이 약 1MB" },
+    { "id": "N-030", "title": "시간표 .ics 내보내기 · 공강 표시", "area": "web", "owner": "me", "status": "todo", "requested": "2026-11-02" },
+    { "id": "N-031", "title": "ERD · DB 스키마", "area": "backend", "owner": "me", "status": "todo", "stage": "m3", "requested": "2026-11-02", "note": "학생, 트랙, 교과목, 선수과목, 비교과, 이수 내역, 학번별 요건 버전" },
+    { "id": "N-032", "title": "트랙·교과·요건·비교과 seed 데이터", "area": "data", "owner": "me", "status": "todo", "stage": "m3", "requested": "2026-11-02", "note": "기획이 정리 → 내가 입력" },
+    { "id": "N-033", "title": "FastAPI — 카탈로그, 학기 계획 저장, 요건 점검, 후기·꿀팁", "area": "backend", "owner": "me", "status": "todo", "stage": "m3", "requested": "2026-11-02" },
+    { "id": "N-034", "title": "CHECK 규칙 엔진 (학번별 분기, 비교과 이월)", "area": "backend", "owner": "me", "status": "todo", "stage": "m3", "requested": "2026-11-02" },
+    { "id": "N-035", "title": "시간표 환산 로직을 서버로", "area": "backend", "owner": "me", "status": "todo", "stage": "m3", "requested": "2026-11-02" },
+    { "id": "N-036", "title": "ROUTE — 로드맵 자동 생성 (OR-Tools CP-SAT)", "area": "backend", "owner": "me", "status": "todo", "stage": "m4", "requested": "2026-11-02" },
+    { "id": "N-037", "title": "비교과 크롤러 이식 · 기회 레이더 수집", "area": "data", "owner": "me", "status": "todo", "stage": "m4", "requested": "2026-11-02" },
+    { "id": "N-038", "title": "MATCH 점수 · ASK RAG · 평가 질문 세트", "area": "ai", "owner": "pm", "status": "todo", "stage": "m4", "requested": "2026-11-02", "note": "평가 질문은 기획" },
+    { "id": "N-039", "title": "웹 데모를 실제 API에 연결", "area": "web", "owner": "pm", "status": "todo", "stage": "m4", "requested": "2026-11-02" },
+    { "id": "N-040", "title": "모바일 앱(Expo) · 푸시 알림", "area": "web", "owner": "team", "status": "todo", "stage": "m4", "requested": "2026-11-02" },
+    { "id": "N-041", "title": "성적표 OCR", "area": "ai", "owner": "pm", "status": "todo", "stage": "m5", "requested": "2026-11-02" },
+    { "id": "N-042", "title": "사용자 테스트 · 결과보고서", "area": "docs", "owner": "team", "status": "todo", "stage": "m5", "requested": "2026-11-02" },
+    { "id": "N-043", "title": "시연 리허설", "area": "docs", "owner": "team", "status": "todo", "stage": "m6", "requested": "2026-11-02" }
+  ],
+  "events": [
+    { "at": "2026-11-02T20:52", "type": "done", "item": "N-001", "text": "웹 데모 1차를 팀 저장소에 올림" },
+    { "at": "2026-11-02T21:11", "type": "done", "item": "N-002" },
+    { "at": "2026-11-02", "type": "note", "text": "진행상황 메모 작성 — 1단계 할 일과 S1~S3 백엔드 할 일을 목록에 올림" },
+    { "at": "2026-11-04T15:44", "type": "done", "item": "N-003", "text": "PM 작업" },
+    { "at": "2026-11-04T16:46", "type": "done", "item": "N-004", "text": "PM 작업" },
+    { "at": "2026-11-06T19:32", "type": "done", "item": "N-005", "text": "PM 작업" },
+    { "at": "2026-11-07", "type": "request", "item": "N-006" },
+    { "at": "2026-11-07T18:04", "type": "done", "item": "N-006" },
+    { "at": "2026-11-07", "type": "request", "item": "N-007" },
+    { "at": "2026-11-07T18:17", "type": "done", "item": "N-007" },
+    { "at": "2026-11-07", "type": "request", "item": "N-008" },
+    { "at": "2026-11-07T21:53", "type": "done", "item": "N-008" },
+    { "at": "2026-11-07", "type": "request", "item": "N-009" },
+    { "at": "2026-11-07T23:32", "type": "done", "item": "N-009" },
+    { "at": "2026-11-07", "type": "wait", "item": "N-014", "text": "시안을 고를 차례" },
+    { "at": "2026-11-07", "type": "request", "item": "N-010" },
+    { "at": "2026-11-07T23:44", "type": "done", "item": "N-010" },
+    { "at": "2026-11-11T19:43", "type": "done", "item": "N-011", "text": "프로젝트 폴더의 'UI 시안 (2026-11-07)'에 7장" },
+    { "at": "2026-11-11", "type": "done", "item": "N-012" },
+    { "at": "2026-11-11", "type": "wait", "item": "N-015" },
+    { "at": "2026-11-11", "type": "wait", "item": "N-016" },
+    { "at": "2026-11-11T20:15", "type": "request", "item": "N-013" },
+    { "at": "2026-11-11T20:15", "type": "start", "item": "N-013" }
+  ],
+  "features": [
+    {
+      "group": "핵심 기능",
+      "rows": [
+        { "name": "SCAN 입력", "status": "partial", "have": "학번, 학과·트랙, 관심사, 성적표 캡처 넣기(샘플 결과)", "left": "실제 성적표 인식, 이수 내역 연동" },
+        { "name": "MATCH 트랙 추천", "status": "partial", "have": "학업 분석의 제2트랙 적합도 Top 3 (성적·관심·진행)", "left": "추천 근거 설명(LLM), 점수 기여도 막대" },
+        { "name": "ROUTE 로드맵", "status": "partial", "have": "학기별 직접 선택, 지난 학기 다시 고르기, 로드맵 버전 저장", "left": "자동 생성, 선수과목·개설 학기 제약" },
+        { "name": "CHECK 요건 점검", "status": "partial", "have": "졸업요건 패널(19~23학번), 트랙 졸업 인증 체크", "left": "선수과목 경고, 자유선택 21학점, 학번별 요건 버전" },
+        { "name": "ASK AI 상담", "status": "todo", "have": "", "left": "RAG 채팅, 답마다 근거 조항, 근거 없으면 담당 부서 안내" }
+      ]
+    },
+    {
+      "group": "차별화 기능",
+      "rows": [
+        { "name": "What-if 시뮬레이터", "status": "partial", "have": "휴학·졸업 시기 계산, 로드맵 버전 비교", "left": "트랙 변경·복수전공 로드맵 나란히 비교" },
+        { "name": "학번별 요건 자동 적용", "status": "partial", "have": "학번에 맞는 기준 이름 표시", "left": "24학번 이후 교양 31학점 등 실제 계산" },
+        { "name": "성적표 OCR", "status": "partial", "have": "캡처 넣기 화면(샘플 결과)", "left": "이미지에서 학기·과목·학점·성적 읽기" },
+        { "name": "모바일 앱 · 푸시", "status": "partial", "have": "앱 설치(PWA), APK 자동 빌드(PR 대기)", "left": "푸시 알림, 웹↔앱 동기화" }
+      ]
+    },
+    {
+      "group": "생활 필수 기능",
+      "rows": [
+        { "name": "시간표", "status": "partial", "have": "실제 분반·교수·시간, 교시→시각 환산, 담으면 시간표에 쏙, 겹침 표시", "left": ".ics 내보내기, 공강·이동 시간" },
+        { "name": "비교과 레이더", "status": "partial", "have": "비교과 상세·후기, 관심사 추천", "left": "실제 비교과 수집, 마감 알림" },
+        { "name": "교외비교과 가이드", "status": "partial", "have": "배점표 기준 예상 포인트 계산", "left": "증빙 체크리스트" },
+        { "name": "어학·자격증 센터", "status": "partial", "have": "시험 정보와 접수 바로가기", "left": "포인트 환산, 영어 교양필수 면제 기준" },
+        { "name": "기회 레이더", "status": "partial", "have": "관심사에 맞는 공모전·대외활동 안내", "left": "교내외 공고 자동 수집·추천" },
+        { "name": "꿀팁 게시판", "status": "todo", "have": "11/2에 만든 초안 (본 코드에 아직 없음)", "left": "옮겨오기, 서버 저장" }
+      ]
+    }
+  ]
+}
