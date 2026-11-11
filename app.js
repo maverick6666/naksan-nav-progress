@@ -120,8 +120,11 @@ function secNow() {
   const end = ms[ms.length - 1].to;
   const total = daysBetween(start, end) + 1;
   const at = (d) => (Math.min(Math.max(daysBetween(start, d), 0), total) / total) * 100;
-  const phase = (m) => (today > m.to ? "past" : today >= m.from ? "now" : "next");
+  // 일찍 끝낸 단계(done)는 기간이 남아 있어도 지난 단계로 본다.
+  const phase = (m) => (m.done || today > m.to ? "past" : today >= m.from ? "now" : "next");
+  const cls = (m) => `is-${phase(m)}${m.done ? " is-done" : ""}`;
   const cur = ms.find((m) => phase(m) === "now") ?? ms.find((m) => phase(m) === "next");
+  const early = ms.filter((m) => m.done && today <= m.to).pop();
 
   let stage = "";
   if (cur) {
@@ -129,27 +132,33 @@ function secNow() {
     const left = daysBetween(today, cur.to);
     const d = isNow ? (left === 0 ? "오늘 마감" : `마감까지 ${left}일`) : `${daysBetween(today, cur.from)}일 뒤 시작`;
     const span = cur.from === cur.to ? md(cur.from) : `${md(cur.from)}–${md(cur.to)}`;
-    stage = `<div class="stage"><span>${isNow ? "지금 단계" : "다음 단계"}</span><b>${esc(cur.name)}</b><span class="dday">${d}</span><span>${span}${
-      cur.note ? ` · ${esc(cur.note)}` : ""
-    }</span></div>`;
+    stage = `<div class="stage">${early ? `<span class="stage__ok">${esc(early.name)} 끝</span>` : ""}<span>${isNow ? "지금 단계" : "다음 단계"}</span><b>${esc(
+      cur.name,
+    )}</b><span class="dday">${d}</span><span>${span}${cur.note ? ` · ${esc(cur.note)}` : ""}</span></div>`;
   }
 
   const segs = ms
     .map((m) => {
       const w = Math.max(((daysBetween(m.from, m.to) + 1) / total) * 100, 0.8);
-      return `<i class="is-${phase(m)}" style="left:${at(m.from)}%;width:${w}%" title="${esc(m.name)}"></i>`;
+      return `<i class="${cls(m)}" style="left:${at(m.from)}%;width:${w}%" title="${esc(m.name)}"></i>`;
     })
     .join("");
   const keys = (DATA.keyDates ?? [])
     .filter((k) => k.date >= start && k.date <= end)
-    .map((k) => `<b class="ms__key" style="left:${((daysBetween(start, k.date) + 0.5) / total) * 100}%" title="${esc(md(k.date))} ${esc(k.name)}"></b>`)
+    .map(
+      (k) =>
+        `<b class="ms__key${k.done ? " is-done" : ""}" style="left:${((daysBetween(start, k.date) + 0.5) / total) * 100}%" title="${esc(md(k.date))} ${esc(k.name)}"></b>`,
+    )
     .join("");
   const mark =
     today >= start && today <= end
       ? `<span class="ms__today" style="left:${((daysBetween(start, today) + 0.5) / total) * 100}%"><span>오늘 ${md(today)}</span></span>`
       : "";
   const list = ms
-    .map((m) => `<li class="is-${phase(m)}"><b>${esc(m.name)}</b>${m.from === m.to ? md(m.from) : `${md(m.from)}–${md(m.to)}`}</li>`)
+    .map(
+      (m) =>
+        `<li class="${cls(m)}"><b>${esc(m.name)}${m.done ? `<em> · 끝</em>` : ""}</b>${m.from === m.to ? md(m.from) : `${md(m.from)}–${md(m.to)}`}</li>`,
+    )
     .join("");
 
   const upcoming = (DATA.keyDates ?? []).filter((k) => k.date >= today).slice(0, 4);
@@ -157,7 +166,8 @@ function secNow() {
     ? `<div class="dates"><h3>다가오는 일정</h3><ul>${upcoming
         .map((k) => {
           const name = k.item ? `<a href="#${esc(k.item)}">${esc(k.name)}</a>` : esc(k.name);
-          return `<li><span class="dates__d">${dday(today, k.date)}</span><span class="dates__when">${longDate(k.date)}${k.time ? ` ${esc(k.time)}` : ""}</span><span class="dates__name">${name}</span></li>`;
+          const when = k.done ? `<span class="dates__d is-done">${esc(k.doneLabel ?? "끝")}</span>` : `<span class="dates__d">${dday(today, k.date)}</span>`;
+          return `<li class="${k.done ? "is-done" : ""}">${when}<span class="dates__when">${longDate(k.date)}${k.time ? ` ${esc(k.time)}` : ""}</span><span class="dates__name">${name}</span></li>`;
         })
         .join("")}</ul></div>`
     : "";

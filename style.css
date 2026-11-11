@@ -327,6 +327,21 @@ code {
 .ms-list li.is-now { border-top-color: var(--accent); }
 .ms-list li.is-now b { color: var(--accent); }
 
+/* 일찍 끝낸 단계 */
+.ms i.is-done { background: var(--done); }
+.ms-list li.is-done { border-top-color: var(--done); }
+.ms-list li.is-done b { color: var(--done); }
+.ms-list li b em { font-style: normal; font-weight: 600; }
+
+.stage__ok {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--done-weak);
+  color: var(--done);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
 /* ── 지금: 숫자 ── */
 .counts {
   display: grid;
@@ -582,6 +597,10 @@ code {
   font-weight: 600;
   color: var(--ink);
 }
+
+.ms__key.is-done { background: var(--done); }
+.dates__d.is-done { color: var(--done); font-size: 12.5px; }
+.dates li.is-done .dates__name a { color: var(--ink-3); text-decoration: line-through; }
 
 .ms__key {
   position: absolute;
