@@ -201,6 +201,7 @@ code {
 .st--todo,
 .st--note { color: var(--todo); background: var(--todo-weak); }
 .st--request { color: var(--ink); background: var(--todo-weak); }
+.st--hold { color: var(--ink-3); background: transparent; box-shadow: inset 0 0 0 1px #c3cad4; }
 
 .tg {
   display: inline-flex;
@@ -394,6 +395,7 @@ code {
 .stack i:nth-child(2) { background: var(--accent); }
 .stack i:nth-child(3) { background: #d9a250; }
 .stack i:nth-child(4) { background: #c3cad4; }
+.stack i:nth-child(5) { background: #e6e9ed; }
 
 .legend {
   display: flex;
@@ -670,6 +672,11 @@ code {
 .dot--doing { border-color: var(--accent); background: var(--accent-weak); }
 .dot--waiting { border-color: #d9a250; background: var(--wait-weak); }
 .dot--done { border-color: var(--done); background: var(--done); }
+.dot--hold { border-style: dashed; border-color: #b4bcc7; }
+
+/* 보류: 흐리게 */
+.group--hold h3 { color: var(--ink-3); border-bottom-color: #c3cad4; }
+.group--hold .row__t { color: var(--ink-2); }
 
 .pr {
   display: inline-flex;

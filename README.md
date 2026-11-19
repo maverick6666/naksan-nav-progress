@@ -20,6 +20,7 @@
 | 하는 중에 단계가 끝났을 때 | `진행: <끝난 단계> (N-0xx)` |
 | 일이 끝났을 때 | `완료: <제목> (N-0xx)` |
 | 누군가의 결정을 기다릴 때 | `결정 필요: <제목> (N-0xx)` |
+| 못 해서 미룰 때 | `보류: <제목> (N-0xx)` |
 | 그 밖의 정리 | `정리: <내용>` |
 
 ## `data/tracker.json` 구조
@@ -31,7 +32,7 @@
 | `milestones` | 공모전 일정: `id`, `name`, `from`, `to`, `note` |
 | `keyDates` | 다가오는 일정(미팅·마감): `date`, `time`, `name`, `item` |
 | `items` | 일 하나하나 (아래 표) |
-| `events` | 이력: `at`, `type`(`request` · `start` · `done` · `wait` · `note`), `item`, `text`. 날짜 순서로 넣고, 같은 날은 일어난 순서대로 |
+| `events` | 이력: `at`, `type`(`request` · `start` · `done` · `wait` · `note` · `hold`), `item`, `text`. 날짜 순서로 넣고, 같은 날은 일어난 순서대로 |
 | `features` | 기획서 기능 대비 현황: `group`, `rows[]`(`name`, `status`(`done` · `partial` · `todo`), `have`, `left`) |
 
 `items` 한 개의 칸:
@@ -39,7 +40,7 @@
 | 칸 | 내용 |
 | --- | --- |
 | `id`, `title` | `N-000` 번호와 제목. 번호는 바꾸지 않아요 (주소 `#N-044`로 바로 열림) |
-| `status` | `todo` 할 일 · `doing` 진행 중 · `waiting` 결정 필요 · `done` 완료 |
+| `status` | `todo` 할 일 · `doing` 진행 중 · `waiting` 결정 필요 · `done` 완료 · `hold` 보류(못 한 일, 이유는 `note`) |
 | `owner`, `area` | 담당, 영역 |
 | `priority`, `rank` | 우선순위 1 먼저 · 2 다음 · 3 나중, 같은 우선순위 안의 순서 |
 | `stage`, `due` | 속한 일정 `id`, 마감일 |
@@ -48,7 +49,7 @@
 | `includes` | 끝난 일에 들어간 것 |
 | `accept` | 끝났다고 볼 기준 |
 | `request`, `source` | 요청 요약, 어디서 나온 일인지 (예: 카톡 11/10 PM 제안) |
-| `requested`, `started`, `done` | 올라온 날, 시작한 날, 끝낸 날 |
+| `requested`, `started`, `done`, `held` | 올라온 날, 시작한 날, 끝낸 날, 보류한 날 |
 | `waitingOn`, `related`, `ref`, `note`, `check` | 기다리는 사람, 관련 번호, 커밋·PR, 메모, 다시 확인할 일 |
 
 날짜는 모두 한국 시간이고, `YYYY-MM-DD` 또는 `YYYY-MM-DDTHH:MM` 형식이에요.

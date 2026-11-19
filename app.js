@@ -1,10 +1,12 @@
 // NAKSAN.NAV 작업 현황 — data/tracker.json 하나를 읽어 화면을 그린다.
 "use strict";
 
-const STATUS = { doing: "진행 중", waiting: "결정 필요", todo: "할 일", done: "완료" };
+const STATUS = { doing: "진행 중", waiting: "결정 필요", todo: "할 일", done: "완료", hold: "보류" };
+/** 아직 남아 있는 일 (끝냈거나 보류한 일은 뺀다) */
+const isOpen = (it) => it.status !== "done" && it.status !== "hold";
 const PRIORITY = { 1: "먼저", 2: "다음", 3: "나중" };
 const FEATURE = { done: "완료", partial: "일부", todo: "아직" };
-const EVENT = { request: "요청", start: "시작", done: "완료", wait: "결정 필요", note: "메모" };
+const EVENT = { request: "요청", start: "시작", done: "완료", wait: "결정 필요", note: "메모", hold: "보류" };
 const WD = ["일", "월", "화", "수", "목", "금", "토"];
 
 const esc = (v) =>
@@ -42,8 +44,8 @@ const ownerName = (o) => DATA.owners[o] ?? o;
 const areaName = (a) => DATA.areas[a] ?? a;
 // 요약 줄에는 담당만. 영역은 펼쳤을 때 보인다.
 const tags = (it) => `<span class="tg">${esc(ownerName(it.owner))}</span>`;
-const prio = (it) => (it.priority && it.status !== "done" ? `<span class="pr pr--${it.priority}">${PRIORITY[it.priority] ?? ""}</span>` : "");
-const due = (it) => (it.due && it.status !== "done" ? `<span class="due">${md(it.due)} 마감 · ${dday(TODAY, it.due)}</span>` : "");
+const prio = (it) => (it.priority && isOpen(it) ? `<span class="pr pr--${it.priority}">${PRIORITY[it.priority] ?? ""}</span>` : "");
+const due = (it) => (it.due && isOpen(it) ? `<span class="due">${md(it.due)} 마감 · ${dday(TODAY, it.due)}</span>` : "");
 const chev = `<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3"/></svg>`;
 // 우선순위 → 마감이 가까운 순 → 직접 정한 순서(rank) → 번호
 const byPriority = (a, b) =>
@@ -83,6 +85,7 @@ function detail(it) {
     it.requested && ["올라온 날", longDate(it.requested)],
     it.started && ["시작", longDate(it.started)],
     it.done && ["끝낸 날", longDate(it.done)],
+    it.held && ["보류한 날", longDate(it.held)],
     it.due && ["마감", longDate(it.due)],
     it.source && ["출처", it.source],
     it.ref && ["참고", it.ref],
@@ -172,12 +175,12 @@ function secNow() {
         .join("")}</ul></div>`
     : "";
 
-  const c = { done: 0, doing: 0, waiting: 0, todo: 0 };
+  const c = { done: 0, doing: 0, waiting: 0, todo: 0, hold: 0 };
   for (const it of DATA.items) if (it.status in c) c[it.status]++;
   const n = DATA.items.length;
   const pct = (k) => (c[k] / n) * 100;
 
-  const first = DATA.items.filter((i) => i.status !== "done" && i.priority === 1).sort(byPriority);
+  const first = DATA.items.filter((i) => isOpen(i) && i.priority === 1).sort(byPriority);
   const firstHtml = first.length
     ? `<div class="next"><h3>먼저 할 일 <span>${first.length}</span></h3><ol>${first
         .map(
@@ -208,10 +211,12 @@ function secNow() {
       <div><small>완료</small><p class="num">${c.done}<small> / ${n}</small></p></div>
     </div>
     <div class="stack" role="img" aria-label="완료 ${c.done}, 진행 중 ${c.doing}, 결정 필요 ${c.waiting}, 할 일 ${c.todo}">
-      <i style="width:${pct("done")}%"></i><i style="width:${pct("doing")}%"></i><i style="width:${pct("waiting")}%"></i><i style="width:${pct("todo")}%"></i>
+      <i style="width:${pct("done")}%"></i><i style="width:${pct("doing")}%"></i><i style="width:${pct("waiting")}%"></i><i style="width:${pct("todo")}%"></i><i style="width:${pct("hold")}%"></i>
     </div>
     <div class="legend">
-      <span style="--c:var(--done)">완료 ${c.done}</span><span style="--c:var(--accent)">진행 중 ${c.doing}</span><span style="--c:#d9a250">결정 필요 ${c.waiting}</span><span style="--c:#c3cad4">할 일 ${c.todo}</span>
+      <span style="--c:var(--done)">완료 ${c.done}</span><span style="--c:var(--accent)">진행 중 ${c.doing}</span><span style="--c:#d9a250">결정 필요 ${c.waiting}</span><span style="--c:#c3cad4">할 일 ${c.todo}</span>${
+        c.hold ? `<span style="--c:#e6e9ed">보류 ${c.hold}</span>` : ""
+      }
     </div>
     <div class="duo">
       <div class="panel"><h3>지금 하는 일 <span>${doing.length}</span></h3>${
@@ -248,10 +253,18 @@ function secTodo() {
       return `<div class="group"><h3>${head}</h3>${list.map((it) => item(it, `<i class="dot"></i>`)).join("")}</div>`;
     })
     .join("");
+  // 못 해서 미뤄 둔 일: 이유는 펼치면 보인다
+  const held = DATA.items.filter((i) => i.status === "hold" && (ownerFilter === "all" || i.owner === ownerFilter)).sort(byPriority);
+  const holdHtml = held.length
+    ? `<div class="group group--hold"><h3>보류<span>못 한 일 · 펼치면 이유가 보여요 · ${held.length}개</span></h3>${held
+        .map((it) => item(it, `<i class="dot dot--hold"></i>`))
+        .join("")}</div>`
+    : "";
   return `<section class="sec" id="todo">
     <div class="sec__head"><h2>할 일</h2><span>${todo.length}개 · 줄을 누르면 자세히 보여요</span></div>
     <div class="chips" role="group" aria-label="담당 고르기">${chips}</div>
     ${html || `<p class="note">이 담당의 할 일이 없어요.</p>`}
+    ${holdHtml}
   </section>`;
 }
 
